@@ -1,5 +1,5 @@
 //
-//modified by:
+//modified by: Derrick Alden
 //date:
 //
 //program: lab8.cpp
@@ -69,6 +69,7 @@ extern void timeCopy(struct timespec *dest, struct timespec *source);
 
 class Global {
 public:
+	Matrix m;
 	int xres, yres;
 	Flt aspectRatio;
 	Vec cameraPos;
@@ -468,9 +469,26 @@ void vecScale(Vec v, Flt s)
 	v[2] *= s;
 }
 
+int compare (const void * a, const void *b)
+{
+    return ( *(int*)a - *(int*)b );
+
+}
+
+#define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
+                      (c)[1]=(a)[1]-(b)[1]; \
+(c)[2]=(a)[2]-(b)[2]
+
 void drawSmoke()
 {
 	if (g.sorting) {
+
+		//Bubble sort might be better
+		//position of camera
+		//position of each particle
+		//get distance store it particle, then sort
+		qsort(g.smoke, 5, sizeof(g.nsmokes), compare);
+
 
 
 	}
@@ -481,6 +499,33 @@ void drawSmoke()
 		glPushMatrix();
 		if (g.billboarding) {
 
+		
+		//Setup camera rotation matrix
+		//
+		Vec v;
+		VecSub(g.smoke->pos, g.cameraPos, v);
+		Vec z = {0.0f, 0.0f, 0.0f};
+		make_view_matrix(z, v, g.m);
+		//
+		//Billboard_to_camera();
+		//
+		float mat[16];
+		mat[ 0] = g.m[0][0];
+		mat[ 1] = g.m[0][1];
+		mat[ 2] = g.m[0][2];
+		mat[ 4] = g.m[1][0];
+		mat[ 5] = g.m[1][1];
+		mat[ 6] = g.m[1][2];
+		mat[ 8] = g.m[2][0];
+		mat[ 9] = g.m[2][1];
+		mat[10] = g.m[2][2];
+		mat[ 3] = mat[ 7] = mat[11] = mat[12] = mat[13] = mat[14] = 0.0f;
+		mat[15] = 1.0f;
+		glMultMatrixf(mat);
+		//
+		//Draw smoke particle here
+		//
+					
 
 		}
 		glTranslatef(g.smoke[i].pos[0],g.smoke[i].pos[1],g.smoke[i].pos[2]);
